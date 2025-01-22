@@ -1,0 +1,166 @@
+/* General body styling */
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container-uploader {
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  width: 50vw; /* Increased this value */
+  max-width: 1200px; /* Increased this value */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading styles */
+.heading {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.headingLink {
+  text-decoration: none;
+  color: #000;
+}
+
+.headingText {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* Form container */
+.fileUploadForm {
+  margin: 20px auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 500px;
+  background-color: rgba(0, 102, 178, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.formLabel {
+  display: block;
+  color: white;
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+#formFileSm {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 5px;
+  border: none;
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Button styles */
+.buttonContainer {
+  text-align: center;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+  font-size: 0.9rem;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+
+
+/* File list styles */
+#head-view-table {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin: 30px 0 15px;
+  border-top: 1px solid black;
+  padding-top: 10px;
+}
+
+.listContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  margin: 10px auto;
+  width: 80%;
+  max-width: 500px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.fileListRow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.fileDescription {
+  flex-grow: 1;
+}
+
+.fileLink {
+  color: #0066b2;
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.fileLink:hover {
+  text-decoration: underline;
+}
+
+/* No files message */
+.noFiles {
+  text-align: center;
+  color: rgb(151, 151, 151);
+  font-size: 1.2rem;
+  margin-top: 30px;
+  font-style: italic;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .fileUploadForm {
+      width: 90%;
+  }
+
+  .listContainer {
+      width: 90%;
+  }
+}

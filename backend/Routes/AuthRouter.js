@@ -3,6 +3,10 @@ const {signupValidation, loginValidation}  = require('../Middlewares/AuthValidat
 
 const router = require('express').Router();
 
+router.get('/ping', (req,res)=>{
+    res.send('PONG');
+})
+
 router.post('/login',loginValidation, login)
 
 router.post('/signup',signupValidation,signup)
