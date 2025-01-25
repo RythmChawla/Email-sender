@@ -3,7 +3,7 @@ const path = require('path');
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const AuthRouter = require('./Routes/AuthRouter.js')
+const AuthRouter = require('./Routes/AuthRouter.js');
 require('dotenv').config();
 const flash = require('connect-flash');
 const session = require('express-session');
@@ -12,18 +12,24 @@ const fileRouter = require('./Routes/fileRouters');
 const PORT = process.env.PORT || 8000;
 const db = require('./Models/db.js');
 
-app.get('/ping', (req,res)=>{
-    res.send('PONG');
-})
-app.use(express.json());
-app.use(express.urlencoded());
+// Routes
+app.get('/ping', (req, res) => {
+  res.send('PONG');
+});
 
-app.use(express.static('./backend'));
+app.use(express.json()); // Only use express.json(), no need for bodyParser.json()
 
-app.use(bodyParser.json());
-app.use(cors());
-app.use('/auth',AuthRouter)
+// CORS Middleware Setup (restricting to your frontend)
+app.use(cors({
+  origin: 'http://localhost:3000', // Allow only this origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
+// Static Folder for Uploaded Files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Session and Flash for authentication
 app.use(
   session({
     secret: 'your_secret_key',
@@ -33,11 +39,9 @@ app.use(
 );
 app.use(flash());
 
-// Static Folder for Uploaded Files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 // Routes
-app.use('/', fileRouter);
+app.use('/auth', AuthRouter);
+app.use('/', fileRouter);  // Enable file routes
 
 // Catch-All Route for Unhandled Requests
 app.use((req, res, next) => {
@@ -49,7 +53,8 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
-app.listen(PORT, ()=>{
-    console.log(`server is running on port: ${PORT}.`);
-})
 
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port: ${PORT}`);
+});

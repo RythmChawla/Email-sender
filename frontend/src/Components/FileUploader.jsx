@@ -1,16 +1,60 @@
 import React, { useEffect, useState } from "react";
 import "./FileUploader.css";
 import { toast, ToastContainer } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
+import { closeToast } from "../utils";
+
+
+
 
 const FileUploader = () => {
+  const navigate = useNavigate();
   const [files, setFiles] = useState([]);
+  closeToast(toast); // This will now work safely
 
-  // Fetch files from the backend
   const fetchFiles = async () => {
     try {
-      const response = await fetch("http://localhost:8080/show");
-      const result = await response.json();
+      const token = localStorage.getItem("token"); // Retrieve token from local storage
+      let response = await fetch("http://localhost:8080/show", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Ensure "Bearer " prefix
+          "Content-Type": "application/json", // Include token in header
+        },
+      });
+
+      let result = await response.json();
+
+      if (response.status === 401) {
+        // Token expired, attempt to refresh it
+        const refreshResponse = await fetch(
+          "http://localhost:8080/refresh-token",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token }), // Pass the expired token
+          }
+        );
+
+        if (refreshResponse.ok) {
+          const refreshData = await refreshResponse.json();
+          localStorage.setItem("token", refreshData.jwtToken); // Store the new JWT token
+
+          // Retry the fetch request with the new token
+          response = await fetch("http://localhost:8080/show", {
+            headers: {
+              Authorization: `Bearer ${refreshData.jwtToken}`,
+            },
+          });
+          result = await response.json();
+        } else {
+          toast.error("Session expired, please log in again.");
+          navigate("/login"); // Redirect to login page if token refresh fails
+          return;
+        }
+      }
 
       if (response.ok) {
         setFiles(result.files);
@@ -28,9 +72,15 @@ const FileUploader = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
 
+    const token = localStorage.getItem("token");
+
     try {
       const response = await fetch("http://localhost:8080/upload", {
         method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          // "Content-Type": "application/json"
+        },
         body: formData,
       });
       const result = await response.json();
@@ -49,9 +99,17 @@ const FileUploader = () => {
 
   // Handle file deletion
   const handleDelete = async (uniqueFileName) => {
+    console.log("Deleting file:", uniqueFileName);
+    const token = localStorage.getItem("token"); 
     try {
       const response = await fetch(
-        `http://localhost:8080/delete/${uniqueFileName}`
+        `http://localhost:8080/delete/${uniqueFileName}`,{
+          method: "GET", // Make sure the method is DELETE
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the Authorization header
+          "Content-Type": "application/json", // Set content type (optional for DELETE)
+        },
+        }
       );
       const result = await response.json();
 
@@ -84,9 +142,48 @@ const FileUploader = () => {
         </header>
 
         <form className="fileUploadForm" onSubmit={handleUpload}>
-          <div id="fileInput" className="formGroup">
+          <div className="formGroup">
+            <label htmlFor="SenderName" className="formLabel">
+              Sender Name
+            </label>
+            <input
+              type="text"
+              name="SenderName"
+              id="SenderName"
+              placeholder="Enter your name..."
+              required
+            />
+          </div>
+
+          <div className="formGroup">
+            <label htmlFor="Subject" className="formLabel">
+              Subject
+            </label>
+            <input
+              type="text"
+              name="Subject"
+              id="Subject"
+              placeholder="Enter email subject..."
+              required
+            />
+          </div>
+
+          <div className="formGroup">
+            <label htmlFor="EmailPrompt" className="formLabel">
+              Email Prompt
+            </label>
+            <textarea
+              name="EmailPrompt"
+              id="EmailPrompt"
+              rows="3"
+              placeholder="Enter the email prompt..."
+              required
+            ></textarea>
+          </div>
+
+          <div className="formGroup">
             <label htmlFor="formFileSm" className="formLabel">
-              Upload File
+              Upload CSV File
             </label>
             <input
               name="file"
@@ -97,6 +194,7 @@ const FileUploader = () => {
               required
             />
           </div>
+
           <div className="buttonContainer">
             <button id="addButton" className="btn btn-success" type="submit">
               Upload
@@ -120,15 +218,13 @@ const FileUploader = () => {
                 </div>
                 <button
                   className="btn btn-primary"
-                  onClick={() =>
-                    (window.location.href = `/fileView/${file._id}`)
-                  }
+                  onClick={() => navigate(`/fileView/${file._id}`)}
                 >
                   Show
                 </button>
                 <button
                   className="btn btn-danger"
-                  onClick={() => handleDelete(file.file)}
+                  onClick={() => handleDelete(file.filePath.split("\\").pop())}
                 >
                   Delete
                 </button>

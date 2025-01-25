@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import { handleSuccess, handleError } from "../utils";
+import { toast, ToastContainer } from "react-toastify";
+import { handleSuccess, handleError,closeToast } from "../utils";
 import "./Login.css";
 
 function Login() {
@@ -9,6 +9,7 @@ function Login() {
     email: "",
     password: "",
   });
+  closeToast(toast); // This will now work safely
   const navigate = useNavigate();
   const handleChange = (e) => {
     const { name, value } = e.target;

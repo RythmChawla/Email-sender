@@ -1,106 +1,143 @@
-/****************IMPORTING PACKAGE/MODELS*************************/
-const File = require("../Models/fileModel"); // Fixed relative path
+const File = require("../Models/fileModel");
 const csv = require("csv-parser");
 const fs = require("fs");
 const path = require("path");
-const FILES_PATH = path.join(__dirname, "../uploads/files");
-const flash = require("connect-flash");
-const session = require("express-session");
+const mongoose = require("mongoose");
 
-// redirect to HOME page
+const FILES_PATH = path.join(__dirname, "../uploads/files");
+
+// Home Route
 const home = async (req, res) => {
   try {
-    let files = await File.find({});
-    res.status(200).json({
-      files: files,
-      layout: false,
-    });
+    const files = await File.find({});
+    res.status(200).json({ files, layout: false });
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching files:", err);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-
+// Upload File
 const uploadFile = async (req, res) => {
   try {
+    const userId = req.user._id;
+    const userEmail = req.user.email;
     File.uploadedFile(req, res, async function (err) {
       if (err) {
-        console.error("Multer Error:", err); // Log Multer-specific error
-        return res.status(400).json({ message: "File upload failed", error: err.message });
+        // console.error("Multer Error:", err);
+        return res
+          .status(400)
+          .json({ message: "File upload failed", error: err.message });
       }
 
-      console.log("Uploaded File Details:", req.file); // Log uploaded file details
+      console.log("Uploaded File Details:", req.file);
 
-      // Check for valid CSV file
       if (req.file && req.file.mimetype === "text/csv") {
         try {
+          const { SenderName, Subject, EmailPrompt } = req.body;
+
+          // Validate fields
+          if (!SenderName || !Subject || !EmailPrompt) {
+            return res.status(400).json({ message: "All fields are required" });
+          }
+
           const savedFile = await File.create({
+            SenderName: SenderName.trim(),
+            Subject: Subject.trim(),
+            EmailPrompt: EmailPrompt.trim(),
             filePath: req.file.path,
             originalName: req.file.originalname,
             file: req.file.filename,
+            userId: userId,
+            userEmail: userEmail
           });
-          console.log("File Saved in Database:", savedFile); // Log saved record
-          return res.status(200).json({
-            message: "File uploaded successfully",
-            file: savedFile,
-          });
+
+          console.log("File Saved in Database:", savedFile);
+          return res
+            .status(200)
+            .json({ message: "File uploaded successfully", file: savedFile });
         } catch (err) {
-          console.error("Database Error:", err); // Log database error
-          return res.status(500).json({ message: "Error saving file to database", error: err.message });
+          console.error("Database Error:", err);
+          return res
+            .status(500)
+            .json({
+              message: "Error saving file to database",
+              error: err.message,
+            });
         }
       } else {
-        console.log("Invalid file format. Only CSV files are allowed.");
-        fs.unlinkSync(req.file.path); // Delete invalid file from the system
-        return res.status(400).json({ message: "Please upload a valid CSV file" });
+        console.warn("Invalid file format. Only CSV files are allowed.");
+        fs.unlink(req.file.path, (unlinkErr) => {
+          if (unlinkErr)
+            console.error("Error deleting invalid file:", unlinkErr);
+        });
+        return res
+          .status(400)
+          .json({ message: "Please upload a valid CSV file" });
       }
     });
   } catch (err) {
-    console.error("Server Error:", err); // Log general server error
-    return res.status(500).json({ message: "Internal Server Error", error: err.message });
+    console.error("Server Error:", err);
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error", error: err.message });
   }
 };
 
+// Delete File
 const fileDelete = async (req, res) => {
   try {
-    const filename = req.params.file;
-    console.log("Filename to delete:", filename); // Debug log
-    const fileRecord = await File.findOne({ file: filename });
+    const filename = path.basename(req.params.file);
+    console.log("Filename to delete:", filename);
 
-    if (fileRecord) {
-      console.log("File record found:", fileRecord); // Debug log
-      await File.deleteOne({ file: filename });
-
-      const filePath = path.join(FILES_PATH, filename);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-
-      return res.status(200).json({ message: "File deleted successfully" });
-    } else {
-      console.error("File not found in database for deletion.");
+    // const fileRecord = await File.findOne({ file: filename });
+    const fileRecord = await File.findOne({ filePath: { $regex: filename, $options: "i" } });
+    if (!fileRecord) {
+      console.warn("File not found in database for deletion.");
       return res.status(404).json({ message: "File not found" });
     }
+
+    console.log("File record found:", fileRecord);
+
+    await File.deleteOne({ _id: fileRecord._id });
+
+    const filePath = path.join(FILES_PATH, filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err.message);
+        }
+      });
+    } else {
+      console.warn("File does not exist on disk.");
+    }
+
+    res.status(200).json({ message: "File deleted successfully" });
   } catch (error) {
     console.error("Error during file deletion:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
+// Show File
 const showFile = async (req, res) => {
   try {
-    const fileId = req.query.file_id;
+    const userId = req.user._id;
+    const { file_id, page = 1, limit = 100 } = req.query; // Default: page 1, 100 rows per page
 
-    if (!fileId) {
-      // If file_id is not provided, return all files or a suitable response
-      const allFiles = await File.find();
-      return res.status(200).json({
-        message: "No file_id provided. Returning all files.",
-        files: allFiles,
-      });
+    // If no file_id is provided, return all files
+    if (!file_id) {
+      const userFiles = await File.find({ userId: userId });
+      // const allFiles = await File.find({});
+      return res.status(200).json({ files: userFiles });
     }
 
-    const fileRecord = await File.findById(fileId);
+    // Check if file_id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(file_id)) {
+      return res.status(400).json({ message: "Invalid file_id format" });
+    }
+
+    const fileRecord = await File.findOne({ _id: file_id, userId: userId });
 
     if (!fileRecord) {
       return res.status(404).json({ message: "File not found" });
@@ -118,24 +155,23 @@ const showFile = async (req, res) => {
       })
       .on("data", (data) => results.push(data))
       .on("end", () => {
-        const page = parseInt(req.query.page) || 1;
-        const pageSize = 100;
-        const totalPages = Math.ceil(results.length / pageSize);
-
-        if (page > totalPages || page < 1) {
-          return res.status(400).json({ message: "Invalid page number" });
-        }
-
-        const start = (page - 1) * pageSize;
-        const slicedResults = results.slice(start, start + pageSize);
+        const totalRows = results.length; // Total rows in the CSV
+        const totalPages = Math.ceil(totalRows / limit); // Total pages
+        const startIndex = (page - 1) * limit; // Start index for current page
+        const paginatedData = results.slice(
+          startIndex,
+          startIndex + parseInt(limit)
+        ); // Paginate rows
 
         return res.status(200).json({
           title: fileRecord.originalName,
+          SenderName: fileRecord.SenderName,
+          Subject: fileRecord.Subject,
+          EmailPrompt: fileRecord.EmailPrompt,
           head: headers,
-          data: slicedResults,
-          length: results.length,
-          page: page,
-          totalPages: totalPages,
+          data: paginatedData,
+          page: parseInt(page),
+          totalPages,
         });
       })
       .on("error", (error) => {
@@ -147,8 +183,6 @@ const showFile = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
 
 module.exports = {
   home,

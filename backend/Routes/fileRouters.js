@@ -1,17 +1,18 @@
 const express = require("express");
 const router = express.Router();
+const {authMiddleware} = require("../Middlewares/AuthMiddleware");
 const { home, uploadFile, fileDelete, showFile } = require("../Controllers/fileController");
 
 // HOME PAGE
-router.get("/", home);
+router.get("/",authMiddleware, home);
 
 // UPLOAD A CSV FILE
-router.post("/upload", uploadFile);
+router.post("/upload",authMiddleware, uploadFile);
 
 // DELETE A CSV FILE
-router.get("/delete/:file", fileDelete);
+router.get("/delete/:file",authMiddleware, fileDelete);
 
 // SHOW THE CSV FILE
-router.get("/show", showFile);
+router.get("/show",authMiddleware, showFile);
 
 module.exports = router;

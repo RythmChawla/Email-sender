@@ -7,25 +7,16 @@ const path = require("path");
 const FILES_PATH = path.join(__dirname, "../uploads/files");
 
 /***************CREATING FILE SCHEMA*****************************/
-const fileSchema = new mongoose.Schema(
-  {
-    filePath: {
-      type: String,
-      required: true,
-    },
-    originalName: {
-      type: String,
-      required: true,
-    },
-    file: {
-      type: String,
-      required: true,
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
+const fileSchema = new mongoose.Schema({
+  originalName: { type: String, required: true },
+  filePath: { type: String, required: true },
+  SenderName: { type: String },
+  Subject: { type: String },
+  EmailPrompt: { type: String },
+  createdAt: { type: Date, default: Date.now },
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" }, // Link to User
+  userEmail: { type: String, required: true }
+});
 
 /*******SETTINGS FOR UPLOADING FILE USING MULTER****************/
 const storage = multer.diskStorage({
@@ -44,7 +35,7 @@ const fileFilter = function (req, file, cb) {
   if (file.mimetype === "text/csv") {
     cb(null, true);
   } else {
-    cb(new Error("Invalid file type. Only CSV files are allowed."));
+    cb(new Error("Invalid file type. Only CSV files are allowed."), false);
   }
 };
 

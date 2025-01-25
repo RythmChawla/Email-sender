@@ -46,6 +46,8 @@
 
 .formGroup {
   margin-bottom: 15px;
+  width: 80%;
+  
 }
 
 .formLabel {
@@ -91,14 +93,30 @@
   padding: 8px 15px;
   border: none;
   border-radius: 5px;
+  margin: 2px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .btn-danger:hover {
-  background-color: #c82333;
+  background-color: #501219;
 }
 
+.btn-primary {
+  background-color: #6235dc;
+  color: white;
+  font-size: 0.9rem;
+  padding: 8px 15px;
+  margin: 2px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #170744;
+}
 
 
 /* File list styles */
@@ -163,4 +181,50 @@
   .listContainer {
       width: 90%;
   }
+}
+
+/* Updated styles for FileUploader */
+
+textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+/* General body styling */
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container-uploader {
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  width: 50vw;
+  max-width: 1200px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Add new styles for form fields */
+.fileUploadForm .formGroup input,
+.fileUploadForm .formGroup textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.fileUploadForm .formGroup label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
 }

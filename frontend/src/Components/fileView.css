@@ -1,116 +1,168 @@
-/* fileView.css */
-
 /* General body styling */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f9f9f9;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f6f9;
+  color: #333;
+}
+
+/* Main container styling */
+#filePage {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 30px auto;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading styling */
+.heading {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.headingText {
+  font-size: 2.5rem;
+  color: #007bff;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.headingText:hover {
+  text-decoration: underline;
+}
+
+/* Search box styling */
+#search-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+#search-box input {
+  padding: 12px;
+  width: 300px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease;
+}
+
+#search-box input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+#search-box select {
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: white;
+  transition: border-color 0.3s ease;
+}
+
+#search-box select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+  font-size: 1rem;
+  background: white;
+}
+
+table thead {
+  background-color: #007bff;
+  color: white;
+}
+
+table thead th {
+  padding: 15px;
+  text-align: left;
+  font-weight: bold;
+}
+
+table tbody td {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  color: #555;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+table tbody tr:hover {
+  background-color: #eef2f7;
+  transition: background-color 0.3s ease;
+}
+
+/* Pagination navigation styling */
+#pagingNav {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination {
+  list-style-type: none;
+  display: flex;
+  gap: 10px;
+  padding: 0;
+}
+
+.pagination .page-item {
+  display: inline-block;
+}
+
+.pagination .page-link {
+  display: inline-block;
+  padding: 10px 15px;
+  text-decoration: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-weight: bold;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pagination .page-link:hover {
+  background-color: #0056b3;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pagination .page-link:disabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #search-box input,
+  #search-box select {
+    width: 100%;
   }
-  
-  /* Main container styling */
-  #filePage {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  .pagination .page-link {
+    padding: 8px 12px;
+    font-size: 0.9rem;
   }
-  
-  /* Heading styling */
-  .heading {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
+
   .headingText {
     font-size: 2rem;
-    color: #333;
-    text-decoration: underline;
   }
-  
-  /* Search box styling */
-  #search-box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-    gap: 10px;
-  }
-  
-  #search-box input {
-    padding: 10px;
-    width: 300px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-  }
-  
-  #search-box select {
-    padding: 10px;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  /* Table styling */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
-  
-  table thead {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  table thead th {
-    padding: 10px;
-    text-align: left;
-  }
-  
-  table tbody td {
-    padding: 10px;
-    border: 1px solid #ccc;
-  }
-  
-  /* Hover effect for table rows */
-  table tbody tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  /* Pagination navigation styling */
-  #pagingNav {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  
-  .pagination {
-    list-style-type: none;
-    display: flex;
-    gap: 10px;
-    padding: 0;
-  }
-  
-  .pagination .page-item {
-    display: inline-block;
-  }
-  
-  .pagination .page-link {
-    display: inline-block;
-    padding: 10px 15px;
-    text-decoration: none;
-    background-color: #007bff;
-    color: white;
-    border-radius: 4px;
-    border: 1px solid transparent;
-  }
-  
-  .pagination .page-link:hover {
-    background-color: #0056b3;
-    color: white;
-  }
-  
+}
