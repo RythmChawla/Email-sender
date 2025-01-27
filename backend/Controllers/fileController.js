@@ -125,11 +125,16 @@ const uploadFile = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
           }
 
+          const relativeFilePath = path.relative(
+            path.resolve(__dirname, "../"), // Adjust to your project root
+            req.file.path
+          );
+
           const savedFile = await File.create({
             SenderName: SenderName.trim(),
             Subject: Subject.trim(),
             EmailPrompt: EmailPrompt.trim(),
-            filePath: req.file.path,
+            filePath: relativeFilePath,
             originalName: req.file.originalname,
             file: req.file.filename,
             userId: userId,
