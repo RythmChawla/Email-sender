@@ -8,10 +8,14 @@ import { closeToast } from "../utils";
 
 
 
+
 const FileUploader = () => {
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   closeToast(toast); // This will now work safely
+  const [ids, setIds] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+
 
   const fetchFiles = async () => {
     try {
@@ -67,35 +71,49 @@ const FileUploader = () => {
     }
   };
 
-  // Handle file upload
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
 
-    const token = localStorage.getItem("token");
+// Handle file upload
+const handleUpload = async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
 
-    try {
-      const response = await fetch("http://localhost:8080/upload", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          // "Content-Type": "application/json"
-        },
-        body: formData,
-      });
-      const result = await response.json();
+  const token = localStorage.getItem("token");
 
-      if (response.ok) {
-        toast.success(result.message || "File uploaded successfully");
-        fetchFiles(); // Refresh the file list
-      } else {
-        toast.error(result.message || "File upload failed");
-      }
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      toast.error("File upload failed");
+  try {
+    const response = await fetch("http://localhost:8080/upload", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        // "Content-Type": "application/json" // Not required for FormData
+      },
+      body: formData,
+    });
+    const result = await response.json();
+
+    if (response.ok) {
+      // Collect IDs and statuses
+      const ids = result.results?.ids || [];
+      const statuses = result.results?.statuses || [];
+
+      console.log("IDs:", ids);
+      console.log("Statuses:", statuses);
+
+      // Store the IDs and statuses in arrays (e.g., local state)
+      setIds(ids); // Assuming you have a state like `const [ids, setIds] = useState([]);`
+      setStatuses(statuses); // Assuming you have a state like `const [statuses, setStatuses] = useState([]);`
+
+      toast.success(result.message || "File uploaded and emails sent successfully");
+      fetchFiles(); // Refresh the file list
+      navigate("/status-view", { state: { ids, statuses } });
+    } else {
+      toast.error(result.message || "File upload failed");
     }
-  };
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    toast.error("File upload failed");
+  }
+};
+
 
   // Handle file deletion
   const handleDelete = async (uniqueFileName) => {
@@ -129,6 +147,9 @@ const FileUploader = () => {
   useEffect(() => {
     fetchFiles();
   }, []);
+
+  
+
 
   return (
     <div className="main">
@@ -180,26 +201,24 @@ const FileUploader = () => {
               required
             ></textarea>
           </div>
+            <div className="formGroup">
+              <label htmlFor="formFileSm" className="formLabel">
+                Upload CSV File
+              </label>
+              <input
+                name="file"
+                id="formFileSm"
+                type="file"
+                placeholder="Upload your CSV file"
+                accept=".csv"
+                required
+              />
+              <button id="addButton" className="btn btn-success" type="submit">
+                SEND MAILS
+              </button>
+            </div>
+          
 
-          <div className="formGroup">
-            <label htmlFor="formFileSm" className="formLabel">
-              Upload CSV File
-            </label>
-            <input
-              name="file"
-              id="formFileSm"
-              type="file"
-              placeholder="Upload your CSV file"
-              accept=".csv"
-              required
-            />
-          </div>
-
-          <div className="buttonContainer">
-            <button id="addButton" className="btn btn-success" type="submit">
-              Upload
-            </button>
-          </div>
         </form>
 
         <p id="head-view-table">Click your file link to view tables</p>
@@ -243,3 +262,4 @@ const FileUploader = () => {
 };
 
 export default FileUploader;
+

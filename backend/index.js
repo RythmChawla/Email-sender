@@ -58,3 +58,17 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);
 });
+
+// app.get('/sendmail',(req,res)=>{
+//   console.log("WORKING!!!")
+//   Posts.find()
+//   .then((result)=>{
+//       res.send({message:'products sent', posts:result})
+//   })
+//   .catch((err)=>{
+//       res.send({message:'Server error'})
+//   })
+// })
+
+
+
