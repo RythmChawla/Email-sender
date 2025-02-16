@@ -61,12 +61,12 @@ const sendEmailsFromCSV = (SenderName, Subject, EmailPrompt, filePath) => {
         // Set up Mailgun client
         const mg = mailgun.client({
           username: "api",
-          key: "113d7718f0d8988902d1217125ff9c18-f6fe91d3-3e81daba",
+          key: "",
           url: "https://api.mailgun.net",
         });
 
         const emailPromise = mg.messages
-          .create("sandbox644423b2e55a429b832b5113527a7259.mailgun.org", {
+          .create("", {
             from: "EmailSender <emailsender4030@gmail.com>",
             to: emailID,
             subject: subject,
