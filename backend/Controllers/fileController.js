@@ -67,7 +67,7 @@ const sendEmailsFromCSV = (SenderName, Subject, EmailPrompt, filePath) => {
 
         const emailPromise = mg.messages
           .create("", {
-            from: "EmailSender <emailsender4030@gmail.com>",
+            from: "",
             to: emailID,
             subject: subject,
             text: newBody,
